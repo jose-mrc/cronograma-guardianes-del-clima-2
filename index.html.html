@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cronograma · Guardianes del Clima</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#fff;--tx:#111;--hd:#c6e0b4;--act:#e2f0d9;--gr:#a6a6a6;--bar:#3a3a3a;--red:#c00000;--ln:#666;--in:#0b3d91}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1c1c1c;--tx:#eee;--hd:#2f4a28;--act:#26361f;--gr:#555;--bar:#d0d0d0;--red:#e04040;--ln:#999;--in:#8ab4ff}}
+:root[data-theme="dark"]{--bg:#1c1c1c;--tx:#eee;--hd:#2f4a28;--act:#26361f;--gr:#555;--bar:#d0d0d0;--red:#e04040;--ln:#999;--in:#8ab4ff}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:Georgia,"Times New Roman",serif;padding:12px}
+h1{font-size:18px;margin:0 0 4px}p.n{font:12px Arial,sans-serif;margin:0 0 10px}
+.w{overflow-x:auto;max-width:100%}
+table{border-collapse:collapse;font-size:12px;min-width:1150px}
+th,td{border:1px solid var(--ln);padding:0;height:24px}
+th{background:var(--hd);text-align:center;padding:2px 4px}
+td.a{background:var(--act);min-width:210px;padding:3px 6px;vertical-align:middle}
+td.r{background:var(--act);min-width:110px;vertical-align:middle}
+td.l{background:var(--gr);width:20px;text-align:center;font-weight:bold}
+td.w1{width:22px;min-width:22px}
+td.on.E{background:var(--bar)}td.on.R{background:var(--red)}
+input{font:12px Arial,sans-serif;color:var(--in);background:transparent;border:0;width:100%;box-sizing:border-box;padding:2px 3px}
+input[type=date]{width:118px}
+[contenteditable]{outline:0;color:var(--in);min-height:16px}
+button{font:12px Arial,sans-serif;margin:6px 6px 0 0;padding:6px 10px}
+.x{border:0;background:none;color:var(--red);cursor:pointer;margin:0;padding:0 4px}
+</style></head><body>
+<h1>CRONOGRAMA · Guardianes del Clima</h1>
+<p class="n">Toca un nombre de actividad o responsable para escribir. Cambia las fechas con el calendario: E = tiempo estimado (gris), R = tiempo real (rojo).</p>
+<div class="w"><table id="t"></table></div>
+<button onclick="add()">+ Agregar actividad</button><button onclick="reset()">Restaurar ejemplo</button>
+<script>
+const D=(s)=>new Date(s+"T00:00:00");
+const W0=D("2026-08-03"),NW=22;
+const def=[
+["Definir la idea y alcance del juego","José Manuel Ramos","2026-08-03","2026-08-14"],
+["Investigación: antecedentes del problema","José Manuel Ramos","2026-08-10","2026-08-21"],
+["Planteamiento del problema","Integrante 2","2026-08-17","2026-08-28"],
+["Objetivos y justificación","Integrante 3","2026-08-24","2026-09-04"],
+["Requisitos funcionales y no funcionales","Integrante 2","2026-09-01","2026-09-11"],
+["Crear repositorio y estructura en GitHub","José Manuel Ramos","2026-09-07","2026-09-11"],
+["Diseño de las 5 misiones y escenarios","Integrante 3","2026-09-08","2026-09-18"],
+["Bocetos de interfaz y personajes","Integrante 2","2026-09-14","2026-09-25"],
+["Diagrama de casos de uso (UML)","Integrante 3","2026-09-21","2026-10-02"],
+["Diagrama de clases del módulo de niveles y habitaciones","José Manuel Ramos","2026-09-28","2026-10-09"],
+["Programar prototipo de niveles y habitaciones","José Manuel Ramos","2026-09-28","2026-10-16"],
+["Lógica de aciertos, errores y reinicio","Integrante 2","2026-10-05","2026-10-16"],
+["Pruebas y corrección de errores","Integrante 3","2026-10-12","2026-10-23"],
+["Documentación final y README","Integrante 2","2026-10-19","2026-10-30"]
+].map(a=>({a:a[0],r:a[1],es:a[2],ee:a[3],rs:"",re:""}));
+let S=null;
+try{S=JSON.parse(localStorage.getItem("crono")||"null")}catch(e){}
+let rows=S||def;
+function save(){try{localStorage.setItem("crono",JSON.stringify(rows))}catch(e){}}
+const wk=[];for(let i=0;i<NW;i++){const d=new Date(W0);d.setDate(d.getDate()+7*i);wk.push(d)}
+const MN=["ENERO","FEBRERO","MARZO","ABRIL","MAYO","JUNIO","JULIO","AGOSTO","SEPTIEMBRE","OCTUBRE","NOVIEMBRE","DICIEMBRE"];
+function on(s,e,i){if(!s||!e)return false;const a=D(s),b=D(e),w=wk[i],w2=new Date(w);w2.setDate(w2.getDate()+6);return a<=w2&&b>=w}
+function draw(){
+let h='<tr><th rowspan="3">ACTIVIDAD</th><th rowspan="3">RESPONSABLE</th><th rowspan="3"></th><th rowspan="3">Inicio</th><th rowspan="3">Fin</th>';
+let g=[];wk.forEach((d,i)=>{const m=d.getMonth();if(g.length&&g[g.length-1].m==m)g[g.length-1].n++;else g.push({m,n:1,s:i})});
+g.forEach(x=>h+=`<th colspan="${x.n}">${MN[x.m]}</th>`);h+='</tr><tr>';g.forEach(x=>h+=`<th colspan="${x.n}">SEMANA</th>`);h+='</tr><tr>';
+g.forEach(x=>{for(let k=1;k<=x.n;k++)h+=`<th>${k}</th>`});h+='</tr>';
+rows.forEach((r,j)=>{
+[["E","es","ee"],["R","rs","re"]].forEach((t,k)=>{
+h+='<tr>';
+if(k==0)h+=`<td class="a" rowspan="2"><span contenteditable onblur="ed(${j},'a',this.textContent)">${r.a.replace(/</g,"&lt;")}</span> <button class="x" onclick="del(${j})" title="Quitar">×</button></td><td class="r" rowspan="2"><input value="${r.r.replace(/"/g,"&quot;")}" placeholder="Nombre" onchange="ed(${j},'r',this.value)"></td>`;
+h+=`<td class="l">${t[0]}</td><td><input type="date" value="${r[t[1]]}" onchange="ed(${j},'${t[1]}',this.value)"></td><td><input type="date" value="${r[t[2]]}" onchange="ed(${j},'${t[2]}',this.value)"></td>`;
+for(let i=0;i<NW;i++)h+=`<td class="w1 ${on(r[t[1]],r[t[2]],i)?'on '+t[0]:''}"></td>`;
+h+='</tr>'})});
+document.getElementById("t").innerHTML=h}
+function ed(j,k,v){rows[j][k]=v;save();if(k!="a"&&k!="r")draw()}
+function add(){rows.push({a:"Nueva actividad",r:"",es:"",ee:"",rs:"",re:""});save();draw()}
+function del(j){rows.splice(j,1);save();draw()}
+function reset(){rows=JSON.parse(JSON.stringify(def));save();draw()}
+draw();
+</script></body></html>
